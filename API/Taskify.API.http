@@ -1,0 +1,9 @@
+@Taskify.API_HostAddress = https://localhost:7180
+
+POST {{Taskify.API_HostAddress}}/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Test my API",
+  "description": "It should work now"
+}
