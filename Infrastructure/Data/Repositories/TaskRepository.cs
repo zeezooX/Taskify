@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Taskify.Core.DTOs;
 using Taskify.Core.Entities;
 using Taskify.Core.Interfaces;
 
@@ -15,11 +16,32 @@ public class TaskRepository : ITaskRepository
     {
         return await _context.TaskItems.FindAsync(taskId);
     }
-    public async Task<IEnumerable<TaskItem>> GetTasksByUserIdAsync(int userId)
+    public async Task<(IEnumerable<TaskItem> Items, int totalCount)> GetTasksByUserIdAsync(int userId, TaskQueryParameters queryParameters)
     {
-        return await _context.TaskItems
-            .Where(t => t.UserId == userId)
+        IQueryable<TaskItem> query = _context.TaskItems.Where(t => t.UserId == userId);
+        if (queryParameters.IsCompleted.HasValue)
+        {
+            query = query.Where(t => t.IsCompleted == queryParameters.IsCompleted.Value);
+        }
+        if (!string.IsNullOrWhiteSpace(queryParameters.SortBy))
+        {
+            query = queryParameters.SortBy.ToLowerInvariant() switch
+            {
+                "duedate" => queryParameters.IsDescending ? query.OrderByDescending(t => t.DueDate) : query.OrderBy(t => t.DueDate),
+                "title" => queryParameters.IsDescending ? query.OrderByDescending(t => t.Title) : query.OrderBy(t => t.Title),
+                _ => queryParameters.IsDescending ? query.OrderByDescending(t => t.Id) : query.OrderBy(t => t.Id),
+            };
+        }
+        else
+        {
+            query = queryParameters.IsDescending ? query.OrderByDescending(t => t.Id) : query.OrderBy(t => t.Id);
+        }
+        int totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+            .Take(queryParameters.PageSize)
             .ToListAsync();
+        return (items, totalCount);
     }
     public async Task<TaskItem> AddTaskAsync(TaskItem task)
     {

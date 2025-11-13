@@ -5,6 +5,20 @@ using Taskify.Core.Interfaces;
 
 namespace Taskify.Application.Services;
 
+/// <summary>
+/// Deprecated: This service is deprecated in favor of MediatR handlers.
+/// </summary>
+/// <remarks>
+/// Use MediatR handlers instead:
+/// - CreateTaskCommandHandler
+/// - GetTaskByIdQueryHandler
+/// - GetTasksByUserIdQueryHandler
+/// - UpdateTaskCommandHandler
+/// - DeleteTaskCommandHandler
+///
+/// The class is kept for reference. Migrate callers to use MediatR requests/commands and handlers.
+/// </remarks>
+[Obsolete("TaskService is deprecated. Use MediatR handlers (CreateTaskCommandHandler, GetTaskByIdQueryHandler, GetTasksByUserIdQueryHandler, UpdateTaskCommandHandler, DeleteTaskCommandHandler) instead.")]
 public class TaskService : ITaskService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -31,10 +45,15 @@ public class TaskService : ITaskService
         }
         return _mapper.Map<TaskDto>(task);
     }
-    public async Task<IEnumerable<TaskDto>> GetTasksByUserIdAsync(int userId)
+    public async Task<PagedList<TaskDto>> GetTasksByUserIdAsync(int userId, TaskQueryParameters queryParameters)
     {
-        var tasks = await _unitOfWork.Tasks.GetTasksByUserIdAsync(userId);
-        return _mapper.Map<IEnumerable<TaskDto>>(tasks);
+        var (tasks, totalCount) = await _unitOfWork.Tasks.GetTasksByUserIdAsync(userId, queryParameters);
+        var taskDtos = _mapper.Map<List<TaskDto>>(tasks);
+        return new PagedList<TaskDto>(
+            taskDtos,
+            totalCount,
+            queryParameters.PageNumber,
+            queryParameters.PageSize);
     }
     public async Task<bool> UpdateTaskAsync(int taskId, UpdateTaskDto updateTaskDto, int userId)
     {

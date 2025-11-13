@@ -4,6 +4,8 @@ namespace Taskify.Core.Interfaces;
 
 public interface IAuthService
 {
-    Task<AuthResponseDto?> RegisterAsync(RegisterDto registerDto);
-    Task<AuthResponseDto?> LoginAsync(LoginDto loginDto);
+    Task<AuthenticatedUserResponse?> RegisterAsync(RegisterDto registerDto);
+    Task<AuthenticatedUserResponse?> LoginAsync(LoginDto loginDto);
+    Task<AuthenticatedUserResponse?> RefreshTokenAsync(string refreshToken);
+    Task<bool> LogoutAsync(int userId);
 }

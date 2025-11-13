@@ -24,4 +24,8 @@ public class UserRepository : IUserRepository
         await _context.Users.AddAsync(user);
         return user;
     }
+    public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+    }
 }

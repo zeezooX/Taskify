@@ -1,9 +1,38 @@
-@Taskify.API_HostAddress = https://localhost:7180
+@Taskify_API_HostAddress = https://localhost:7180
+@token = eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwiZW1haWwiOiJ6aXlhZGVzbGFtQGhvdG1haWwuY29tIiwibmJmIjoxNzYyNzAzOTc1LCJleHAiOjE3NjMzMDg3NzUsImlhdCI6MTc2MjcwMzk3NSwiaXNzIjoiVGFza2lmeUFQSSIsImF1ZCI6IlRhc2tpZnlDbGllbnQifQ.AtB0W2R9hlkCWoFg0G8vrBe6Rofr-5D2OOjS3G7gOQcPDvNVBoox7Yh9qz8dD8x0mFQ9Vt_AGXz-75mXrARpAA
 
-POST {{Taskify.API_HostAddress}}/api/tasks
+POST {{Taskify_API_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
-  "title": "Test my API",
-  "description": "It should work now"
+  "email": "ziyadeslam@hotmail.com",
+  "password": "ziyadeslam@hotmail.com"
+}
+
+###
+
+GET {{Taskify_API_HostAddress}}/api/tasks
+Authorization: Bearer {{token}}
+
+###
+
+POST {{Taskify_API_HostAddress}}/api/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Task 4",
+  "description": "this is another description",
+  "dueDate": "2025-11-15T17:04:34.331",
+  "isCompleted": true
+}
+
+###
+
+PUT {{Taskify_API_HostAddress}}/api/tasks/4
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "isCompleted": true
 }

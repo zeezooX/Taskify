@@ -11,6 +11,7 @@ public class MappingProfile : Profile
         CreateMap<TaskItem, TaskDto>();
 
         CreateMap<CreateTaskDto, TaskItem>();
-        CreateMap<UpdateTaskDto, TaskItem>();
+        CreateMap<UpdateTaskDto, TaskItem>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }

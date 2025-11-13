@@ -1,11 +1,14 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using System.Threading.RateLimiting;
 using Taskify.API.Middleware;
 using Taskify.Application.Services;
 using Taskify.Application.Validation;
@@ -23,15 +26,26 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    //options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddAutoMapper(typeof(TaskService).Assembly);
 builder.Services.AddValidatorsFromAssembly(typeof(CreateTaskDtoValidator).Assembly);
 builder.Services.AddValidatorsFromAssembly(typeof(UpdateTaskDtoValidator).Assembly);
-builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddValidatorsFromAssembly(typeof(LoginDtoValidator).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(RegisterDtoValidator).Assembly);
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(Taskify.Application.Handlers.Tasks.Commands.CreateTaskCommandHandler).Assembly));
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddHangfireServer();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IJobScheduler, HangfireJobScheduler>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation()
     .AddFluentValidationClientsideAdapters();
@@ -61,6 +75,25 @@ builder.Services.AddSwaggerGen(c =>
         { jwtSecurityScheme, Array.Empty<string>() }
     });
 });
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter(policyName: "fixed", windowOptions =>
+    {
+        windowOptions.PermitLimit = 100;
+        windowOptions.Window = TimeSpan.FromSeconds(60);
+        windowOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        windowOptions.QueueLimit = 5;
+    });
+
+    options.AddFixedWindowLimiter(policyName: "login", windowOptions =>
+    {
+        windowOptions.PermitLimit = 5;
+        windowOptions.Window = TimeSpan.FromSeconds(60);
+        windowOptions.QueueLimit = 2;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
@@ -86,6 +119,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseRateLimiter();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -95,12 +129,13 @@ app.UseSwaggerUI(c =>
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseHangfireDashboard();
 app.MapControllers();
 
 try
 {
     Log.Information("Starting web host");
-    app.Run();
+    await app.RunAsync();
 }
 catch (Exception ex)
 {
@@ -108,5 +143,5 @@ catch (Exception ex)
 }
 finally
 {
-    Log.CloseAndFlush();
+    await Log.CloseAndFlushAsync();
 }
