@@ -116,7 +116,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()
+              .WithExposedHeaders("X-Pagination");
+    });
+});
+
 var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseStaticFiles();
+}
+else
+{
+    app.UseCors("AllowReactApp");
+}
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseRateLimiter();
@@ -130,6 +151,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHangfireDashboard();
+app.MapFallbackToFile("index.html");
 app.MapControllers();
 
 try

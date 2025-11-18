@@ -25,4 +25,24 @@
     <ProjectReference Include="..\Infrastructure\Taskify.Infrastructure.csproj" />
   </ItemGroup>
 
+  <Target Name="PublishReactApp" AfterTargets="ComputeFilesToPublish">
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build the React app." />
+  
+    <Message Importance="high" Text="Restoring frontend NPM packages..." />
+    <Exec WorkingDirectory="$(SolutionDir)taskify-client" Command="npm install" />
+    <Message Importance="high" Text="Building frontend..." />
+    <Exec WorkingDirectory="$(SolutionDir)taskify-client" Command="npm run build" />
+  
+    <ItemGroup>
+      <DistFiles Include="$(SolutionDir)taskify-client\dist\**" />
+      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPlot)">
+        <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
 </Project>
