@@ -180,8 +180,8 @@ export const HomePage = () => {
 												<TableCell className="font-medium">{task.title}</TableCell>
 												<TableCell>{task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'N/A'}</TableCell>
 												<TableCell>
-													<Badge variant={task.completed ? 'default' : 'secondary'}>
-														{task.completed ? 'Completed' : 'Pending'}
+													<Badge variant={task.isCompleted ? 'default' : 'secondary'}>
+														{task.isCompleted ? 'Completed' : 'Pending'}
 													</Badge>
 												</TableCell>
 											</TableRow>

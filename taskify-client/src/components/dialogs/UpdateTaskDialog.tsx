@@ -54,7 +54,7 @@ export const UpdateTaskDialog = ({ trigger, task }: UpdateTaskDialogProps) => {
 				description: task.description || '',
 				dueDate: task.dueDate ? new Date(task.dueDate) : undefined
 			});
-			setTimeout(() => setCompleted(task.completed), 0);
+			setTimeout(() => setCompleted(task.isCompleted), 0);
 		}
 	}, [open, task, form]);
 
@@ -66,7 +66,7 @@ export const UpdateTaskDialog = ({ trigger, task }: UpdateTaskDialogProps) => {
 					title: data.title,
 					description: data.description,
 					dueDate: data.dueDate?.toISOString(),
-					completed
+					isCompleted: completed
 				}
 			},
 			{ onSuccess: () => setOpen(false) }

@@ -3,7 +3,7 @@ export interface Task {
 	title: string;
 	description?: string;
 	dueDate?: string;
-	completed: boolean;
+	isCompleted: boolean;
 }
 
 export interface FetchTasksParams {
@@ -36,5 +36,5 @@ export interface UpdateTaskRequest {
 	title?: string;
 	description?: string;
 	dueDate?: string;
-	completed?: boolean;
+	isCompleted?: boolean;
 }

@@ -128,9 +128,9 @@ export const ViewTaskPage = () => {
 								<CardDescription>Task ID: #{task.id}</CardDescription>
 							</div>
 							<Badge
-								variant={task.completed ? 'default' : 'secondary'}
+								variant={task.isCompleted ? 'default' : 'secondary'}
 								className="text-sm">
-								{task.completed ? 'Completed' : 'Pending'}
+								{task.isCompleted ? 'Completed' : 'Pending'}
 							</Badge>
 						</div>
 					</CardHeader>
@@ -161,7 +161,7 @@ export const ViewTaskPage = () => {
 
 							<div>
 								<h3 className="text-muted-foreground mb-2 text-sm font-medium">Status</h3>
-								<p className="text-base">{task.completed ? 'Completed' : 'Pending'}</p>
+								<p className="text-base">{task.isCompleted ? 'Completed' : 'Pending'}</p>
 							</div>
 						</div>
 					</CardContent>
