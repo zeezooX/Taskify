@@ -362,3 +362,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 API/wwwroot/
+
+# Settings files with sensitive data
+/API/appsettings.json
+/API/firebase-service-account.json
