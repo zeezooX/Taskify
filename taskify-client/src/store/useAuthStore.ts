@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { AuthState, User } from '@/interfaces';
-import { deleteFcmToken } from '@/lib/firebase';
 
 export const useAuthStore = create<AuthState>()(
 	persist(
@@ -20,7 +19,6 @@ export const useAuthStore = create<AuthState>()(
 
 			clearUser: () => {
 				set({ user: null, token: null });
-				deleteFcmToken();
 			},
 
 			isAuthenticated: () => {

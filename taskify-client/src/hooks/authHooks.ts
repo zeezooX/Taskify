@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { login, register } from '@/queries';
+import { deleteFcmToken } from '@/lib/firebase';
+import { login, logout, register } from '@/queries';
 import { useAuthStore } from '@/store';
 
 export const useLogin = () => {
@@ -33,10 +34,18 @@ export const useRegister = () => {
 };
 
 export const useLogout = () => {
-	const clearUser = useAuthStore((state) => state.clearUser);
-	return () => {
-		clearUser();
-	};
+	return useMutation({
+		mutationFn: logout,
+		onSuccess: () => {
+			useAuthStore.getState().clearUser();
+			deleteFcmToken();
+			toast.success('Logout successful!');
+		},
+		onError: (error: any) => {
+			const message = error?.response?.data?.message || error?.message || 'Logout failed';
+			toast.error(message);
+		}
+	});
 };
 
 export const useUser = () => {

@@ -20,7 +20,23 @@ messaging.onBackgroundMessage((payload) => {
 	const notificationTitle = payload.notification.title;
 	const notificationOptions = {
 		body: payload.notification.body,
-		icon: '/firebase-logo.png'
+		icon: '/vite.svg',
+		data: payload.data
 	};
 	self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+self.addEventListener('notificationclick', function (event) {
+	console.log('[firebase-messaging-sw.js] Notification click Received.', event);
+	event.notification.close();
+
+	const clickAction = event.notification.data?.click_action;
+	event.waitUntil(
+		clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+			for (const client of windowClients) {
+				if (client.url === clickAction && 'focus' in client) return client.focus();
+			}
+			if (clients.openWindow) return clients.openWindow(clickAction);
+		})
+	);
 });

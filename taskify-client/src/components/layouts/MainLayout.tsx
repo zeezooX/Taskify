@@ -1,4 +1,4 @@
-import { Moon, Sun } from 'lucide-react';
+import { LoaderCircle, Moon, Sun } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -22,13 +22,12 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 	const user = useUser();
-	const logout = useLogout();
+	const { mutate: logout, isPending } = useLogout();
 	const navigate = useNavigate();
 	const { theme, toggleTheme } = useTheme();
 
 	const handleLogout = () => {
 		logout();
-		navigate('/login');
 	};
 
 	const getUserInitials = () => {
@@ -78,7 +77,18 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 										variant="ghost"
 										className="relative h-10 w-10 rounded-full">
 										<Avatar>
-											<AvatarFallback>{getUserInitials()}</AvatarFallback>
+											{isPending ? (
+												<div className="flex h-full w-full items-center justify-center">
+													<LoaderCircle
+														className="h-full w-full animate-spin"
+														aria-hidden
+													/>
+												</div>
+											) : (
+												<AvatarFallback className="flex h-full w-full items-center justify-center">
+													{getUserInitials()}
+												</AvatarFallback>
+											)}
 										</Avatar>
 									</Button>
 								</DropdownMenuTrigger>
