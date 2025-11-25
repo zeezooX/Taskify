@@ -116,4 +116,13 @@ public class AuthController : ControllerBase
         Response.Cookies.Delete("refreshToken");
         return Ok(new { message = "Logged out successfully." });
     }
+
+    [Authorize]
+    [HttpPost("fcm-token")]
+    public async Task<IActionResult> UpdateFcmToken([FromBody] FcmTokenDto dto)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _authService.UpdateFcmTokenAsync(userId, dto.Token);
+        return Ok(new { message = "FCM token updated successfully." });
+    }
 }

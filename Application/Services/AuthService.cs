@@ -75,7 +75,19 @@ public class AuthService : IAuthService
         }
         user.RefreshToken = null;
         user.RefreshTokenExpiryTime = null;
+        user.FcmToken = null;
         await _unitOfWork.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateFcmTokenAsync(int userId, string fcmToken)
+    {
+        var user = await _unitOfWork.Users.GetUserByIdAsync(userId);
+        if (user != null)
+        {
+            user.FcmToken = fcmToken;
+            await _unitOfWork.SaveChangesAsync();
+        }
         return true;
     }
 }

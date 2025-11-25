@@ -1,6 +1,7 @@
 import { Moon, Sun } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import {
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useLogout, useTheme, useUser } from '@/hooks';
+import { onMessageListener, syncFcmToken } from '@/lib/firebase';
 
 interface MainLayoutProps {
 	children: React.ReactNode;
@@ -33,6 +35,22 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 		if (!user?.email) return 'U';
 		return user.email.charAt(0).toUpperCase();
 	};
+
+	useEffect(() => {
+		syncFcmToken();
+
+		onMessageListener().then((payload: any) => {
+			toast.info(payload.notification?.title || 'New Notification', {
+				description: payload.notification?.body || '',
+				action: {
+					label: 'View',
+					onClick: () => {
+						navigate(payload?.data?.click_action || '/');
+					}
+				}
+			});
+		});
+	}, [navigate]);
 
 	return (
 		<div className="bg-background min-h-screen">

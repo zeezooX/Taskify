@@ -8,4 +8,5 @@ public interface IAuthService
     Task<AuthenticatedUserResponse?> LoginAsync(LoginDto loginDto);
     Task<AuthenticatedUserResponse?> RefreshTokenAsync(string refreshToken);
     Task<bool> LogoutAsync(int userId);
+    Task<bool> UpdateFcmTokenAsync(int userId, string fcmToken);
 }

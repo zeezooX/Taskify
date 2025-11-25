@@ -8,4 +8,5 @@ public class User : BaseEntity
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
     public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
+    public string? FcmToken { get; set; }
 }

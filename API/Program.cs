@@ -1,5 +1,7 @@
+using FirebaseAdmin;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Google.Apis.Auth.OAuth2;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
@@ -44,7 +46,7 @@ builder.Services.AddHangfireServer();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IJobScheduler, HangfireJobScheduler>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationService, FcmNotificationService>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation()
@@ -126,6 +128,11 @@ builder.Services.AddCors(options =>
               .AllowCredentials()
               .WithExposedHeaders("X-Pagination");
     });
+});
+
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile("firebase-service-account.json")
 });
 
 var app = builder.Build();
