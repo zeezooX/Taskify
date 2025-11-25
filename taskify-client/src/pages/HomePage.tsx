@@ -178,7 +178,9 @@ export const HomePage = () => {
 												tabIndex={0}
 												onClick={() => navigate(`/tasks/${task.id}`)}>
 												<TableCell className="font-medium">{task.title}</TableCell>
-												<TableCell>{task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'N/A'}</TableCell>
+												<TableCell>
+													{task.dueDate ? format(new Date(task.dueDate), 'MMM do, yyyy') : 'N/A'}
+												</TableCell>
 												<TableCell>
 													<Badge variant={task.isCompleted ? 'default' : 'secondary'}>
 														{task.isCompleted ? 'Completed' : 'Pending'}

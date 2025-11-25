@@ -135,7 +135,7 @@ export const ViewTaskPage = () => {
 						</div>
 					</CardHeader>
 					<Separator />
-					<CardContent className="space-y-4 pt-6">
+					<CardContent className="space-y-4">
 						<div>
 							<h3 className="text-muted-foreground mb-2 text-sm font-medium">Description</h3>
 							<p className="text-base">
