@@ -33,7 +33,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetTasksByUserId([FromQuery] TaskQueryParameters queryParameters)
+    public async Task<ActionResult<List<TaskDto>>> GetTasksByUserId([FromQuery] TaskQueryParameters queryParameters)
     {
         var pagedTasks = await _mediator.Send(new GetTasksByUserIdQuery
         (
@@ -53,7 +53,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet("{taskId}")]
-    public async Task<IActionResult> GetTaskById(int taskId)
+    public async Task<ActionResult<TaskDto>> GetTaskById(int taskId)
     {
         var task = await _mediator.Send(new GetTaskByIdQuery(taskId, GetUserId()));
         if (task == null)
@@ -64,7 +64,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto createTaskDto)
+    public async Task<ActionResult<TaskDto>> CreateTask([FromBody] CreateTaskDto createTaskDto)
     {
         var createdTask = await _mediator.Send(new CreateTaskCommand(createTaskDto, GetUserId()));
         return CreatedAtAction(nameof(GetTaskById), new { taskId = createdTask.Id }, createdTask);

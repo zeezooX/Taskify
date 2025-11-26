@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDto registerDto)
+    public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto registerDto)
     {
         try
         {
@@ -56,7 +56,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto loginDto)
+    public async Task<ActionResult<AuthResponseDto>> Login(LoginDto loginDto)
     {
         try
         {
@@ -80,7 +80,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> RefreshToken()
+    public async Task<ActionResult<AuthResponseDto>> RefreshToken()
     {
         try
         {
